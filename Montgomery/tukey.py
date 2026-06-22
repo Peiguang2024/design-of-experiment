@@ -8,9 +8,9 @@ def tukey(df, treatment_col, result_col, alpha):
     treatment = df[treatment_col].unique()
     # results = df.groupby(treatment_col)[result_col].apply(list).values
     # generate treatment pairs
-    from itertools import combinations
+    from itertools import permutations
     treatment_pair = []
-    treatment_pair.extend(combinations(treatment,2))
+    treatment_pair.extend(permutations(treatment,2))
 
     # compute the q statistic for each of the pairs
     df['ave'] = df[result_col].mean()
@@ -25,7 +25,8 @@ def tukey(df, treatment_col, result_col, alpha):
         n_0 = df[df[treatment_col]==pair[0]][result_col].shape[0]
         ave_1 = df[df[treatment_col]==pair[1]][result_col].mean()
         n_1 = df[df[treatment_col]==pair[1]].shape[0]
-        q = np.abs(ave_0 - ave_1) / (np.sqrt(MSE*(1/n_0)+1/n_1)/np.sqrt(2))
+        # print(n_0, n_1, df.shape[0], len(treatment), ave_0, ave_1)
+        q = (ave_0 - ave_1) / np.sqrt(MSE * (1/n_0 + 1/n_1)) * np.sqrt(2)
         qs.append(q)
 
     return pd.DataFrame({
